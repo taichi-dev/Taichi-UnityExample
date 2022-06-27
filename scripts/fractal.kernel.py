@@ -35,6 +35,9 @@ gui = ti.GUI("Julia Set", res=(n * 2, n))
 i = 0
 while True:
     i += 1
+    # It will crash here because the aot compilation uses a different vulkan
+    # version than that for realtime running. But the aot compilation result
+    # should have been dumped in the output directory at this point.
     fractal(0.03 * i, canvas)
     canvas2 = np.repeat(canvas.to_numpy().reshape(n * 2,n,1), 3, 2)
 
