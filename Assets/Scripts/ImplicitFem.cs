@@ -92,18 +92,32 @@ public class ImplicitFem : MonoBehaviour {
         _VertexBufferPtr = _Mesh.GetNativeVertexBufferPtr(0);
     }
 
+    int _LastFrameNumber = 0;
     bool _Initialized = false;
     void Update() {
+        if (_LastFrameNumber >= Time.frameCount) { return; }
+        _LastFrameNumber = Time.frameCount;
+
         var x = _Data.x.ToCpu();
-        var v = _Data.v.ToCpu();
-        var f = _Data.f.ToCpu();
+        var c2e = _Data.c2e.ToCpu();
+        var edges = _Data.edges.ToCpu();
+        var indices = _Data.indices.ToCpu();
         var ox = _Data.ox.ToCpu();
         var vertices = _Data.vertices.ToCpu();
-        if (_Initialized || _Module.Initialize(_Data)) {
-            _Initialized = true;
-            //_Module.Apply(_Data);
-            //TaichiRuntime.Singleton.CopyMemoryToNativeAsync(_Data.x.ToTiMemorySlice(), _VertexBufferPtr, 0, _Data.x.Size);
+        if (_Initialized) {
+            Debug.Log("applied effect in frame " + Time.frameCount.ToString());
+            _Module.Apply(_Data);
+            TaichiRuntime.Singleton.CopyMemoryToNativeAsync(_Data.x.ToTiMemorySlice(), _VertexBufferPtr, 0, _Data.x.Size);
+            TaichiRuntime.Singleton.Submit();
+        } else {
+            Debug.Log("triggerred initialization in frame " + Time.frameCount.ToString());
+            if (_Module.Initialize(_Data)) {
+                Debug.Log("initialized in frame " + Time.frameCount.ToString());
+                _Initialized = true;
+                TaichiRuntime.Singleton.Submit();
+            } else {
+                TaichiRuntime.Singleton.Submit();
+            }
         }
-        TaichiRuntime.Singleton.Submit();
     }
 }

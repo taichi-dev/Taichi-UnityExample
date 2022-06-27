@@ -85,20 +85,23 @@ class Module_implicit_fem {
     }
 
     public bool Initialize(Data data) {
+        // Note these are `&` (logical and) and is not `&&` (fusing logical
+        // and). So all the initialization states are checked and memory
+        // imports are triggered.
         bool allInitialized =
-            data.x.IsInitialized &&
-            data.v.IsInitialized &&
-            data.f.IsInitialized &&
-            data.mul_ans.IsInitialized &&
-            data.c2e.IsInitialized &&
-            data.b.IsInitialized &&
-            data.r0.IsInitialized &&
-            data.p0.IsInitialized &&
-            data.indices.IsInitialized &&
-            data.vertices.IsInitialized &&
-            data.edges.IsInitialized &&
-            data.ox.IsInitialized &&
-            data.alpha_scalar.IsInitialized &&
+            data.x.IsInitialized &
+            data.v.IsInitialized &
+            data.f.IsInitialized &
+            data.mul_ans.IsInitialized &
+            data.c2e.IsInitialized &
+            data.b.IsInitialized &
+            data.r0.IsInitialized &
+            data.p0.IsInitialized &
+            data.indices.IsInitialized &
+            data.vertices.IsInitialized &
+            data.edges.IsInitialized &
+            data.ox.IsInitialized &
+            data.alpha_scalar.IsInitialized &
             data.beta_scalar.IsInitialized;
         if (!allInitialized) { return false; }
         {
