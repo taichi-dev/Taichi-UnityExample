@@ -14,18 +14,15 @@ args = parser.parse_args()
 # TODO: asserts cuda or vulkan backend
 ti.init(arch=ti.vulkan)
 
-SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-
-
 def get_rel_path(*segs):
-    return os.path.join(SCRIPT_PATH, *segs)
+    return os.path.join("Assets/Data/ImplicitFem", *segs)
 
 
-c2e_np = np.load(get_rel_path('c2e.npy'))
-vertices_np = np.load(get_rel_path('vertices_np.npy'))
-indices_np = np.load(get_rel_path('indices_np.npy'))
-edges_np = np.load(get_rel_path('edges_np.npy'))
-ox_np = np.load(get_rel_path('ox_np.npy'))
+c2e_np = np.fromfile(get_rel_path('c2e.bin'), dtype=np.int32).reshape(-1, 6)
+vertices_np = np.fromfile(get_rel_path('vertices.bin'), dtype=np.int32).reshape(-1, 4)
+indices_np = np.fromfile(get_rel_path('indices.bin'), dtype=np.int32).reshape(-1, 3)
+edges_np = np.fromfile(get_rel_path('edges.bin'), dtype=np.int32).reshape(-1, 2)
+ox_np = np.fromfile(get_rel_path('ox.bin'), dtype=np.float32).reshape(-1, 3)
 
 n_edges = edges_np.shape[0]
 n_verts = ox_np.shape[0]
@@ -302,14 +299,6 @@ def substep():
 
 
 def run_aot():
-    cwd = os.getcwd()
-    if cwd != SCRIPT_PATH:
-        raise RuntimeError(
-            f'AOT must be done in the script path {SCRIPT_PATH}')
-    dir_name = os.path.join('..', 'android/app/src/main/assets', 'shaders', 'aot', 'implicit_fem')
-    shutil.rmtree(dir_name, ignore_errors=True)
-    pathlib.Path(dir_name).mkdir(parents=True, exist_ok=False)
-
     mod = ti.aot.Module(ti.vulkan)
     mod.add_kernel(get_force,
                    template_args={
@@ -365,7 +354,7 @@ def run_aot():
                    template_args={
                        'beta_scalar': beta_scalar,
                    })
-    mod.save(dir_name, '')
+    mod.save("Assets/TaichiModules/implicit_fem", '')
     print('AOT done')
 
 
@@ -433,48 +422,10 @@ def run_ggui():
         window.show()
 
 
-def generate_data_header_file_for_aot():
-    def write_array(x, t, name, f):
-        if t is float:
-            f.write('float {}'.format(name))
-        else:
-            f.write('int {}'.format(name))
-        if len(x.shape) == 2:
-            f.write('[{}][{}] = '.format(x.shape[0], x.shape[1]))
-            f.write('{')
-            for i in range(x.shape[0]):
-                f.write('{')
-                for j in range(x.shape[1]):
-                    f.write(str(t(x[i, j])) + ',')
-                f.write('},')
-            f.write('};\n')
-        elif len(x.shape) == 1:
-            f.write('[{}] = '.format(x.shape[0]))
-            f.write('{')
-            for i in range(x.shape[0]):
-                f.write(str(t(x[i])) + ',')
-            f.write('};\n')
-
-    data_header_path = get_rel_path('..', 'include', 'mesh_data.h')
-    if os.path.exists(data_header_path):
-        os.remove(data_header_path)
-    with open(data_header_path, 'w') as f:
-        f.write('constexpr int N_VERTS = {};\n'.format(n_verts))
-        f.write('constexpr int N_CELLS = {};\n'.format(n_cells))
-        f.write('constexpr int N_FACES = {};\n'.format(n_faces))
-        f.write('constexpr int N_EDGES = {};\n'.format(n_edges))
-        write_array(ox_np, float, 'ox_data', f)
-        write_array(vertices_np, int, 'vertices_data', f)
-        write_array(indices_np.reshape(-1), int, 'indices_data', f)
-        write_array(edges_np, int, 'edges_data', f)
-        write_array(c2e_np, int, 'c2e_data', f)
-
-
 if __name__ == '__main__':
     print(f'dt={dt} num_substeps={num_substeps}')
     if args.aot:
         run_aot()
-        generate_data_header_file_for_aot()
     else:
         clear_field()
         init(x, v, f, ox, vertices)
