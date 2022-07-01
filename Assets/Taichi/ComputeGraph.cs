@@ -1,17 +1,18 @@
 ﻿using System;
+using Taichi.Generated;
 using UnityEngine;
 
-namespace Taichi.Unity {
-    public class TaichiComputeGraph : IDisposable {
-        public readonly TaichiAotModule AotModule;
+namespace Taichi {
+    public class ComputeGraph : IDisposable {
+        public readonly AotModule AotModule;
         public readonly TiComputeGraph Handle;
 
-        public TaichiComputeGraph(TaichiAotModule aotModule, TiComputeGraph handle) {
+        public ComputeGraph(AotModule aotModule, TiComputeGraph handle) {
             AotModule = aotModule;
             Handle = handle;
         }
 
-        public void Launch(TiNamedArgument[] namedArgs) {
+        public void LaunchAsync(TiNamedArgument[] namedArgs) {
             for (var i = 0; i < namedArgs.Length; ++i) {
                 if (namedArgs[i].argument.type == TiArgumentType.TI_ARGUMENT_TYPE_NDARRAY) {
                     if (namedArgs[i].argument.value.ndarray.memory.Inner == IntPtr.Zero) {
@@ -26,7 +27,7 @@ namespace Taichi.Unity {
                     namedArgs[i].argument.value.ndarray.elem_shape.dims = new uint[16];
                 }
             }
-            Ffi.LaunchComputeGraphAsyncUNITY(AotModule.Runtime.Handle, Handle, (uint)namedArgs.Length, namedArgs);
+            Ffi.TixLaunchComputeGraphAsyncUnity(Runtime.Singleton.Handle, Handle, (uint)namedArgs.Length, namedArgs);
         }
 
 
@@ -41,7 +42,7 @@ namespace Taichi.Unity {
                 disposedValue = true;
             }
         }
-        ~TaichiComputeGraph() {
+        ~ComputeGraph() {
             Dispose(disposing: false);
         }
         public void Dispose() {

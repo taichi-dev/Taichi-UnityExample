@@ -2,19 +2,19 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
-namespace Taichi {
+namespace Taichi.Generated {
 
 // alias.bool
-// using TiBool = uint;
+
 
 // definition.false
 static partial class Def {
-public const uint FALSE = 0;
+public const uint TI_FALSE = 0;
 }
 
 // definition.true
 static partial class Def {
-public const uint TRUE = 1;
+public const uint TI_TRUE = 1;
 }
 
 // alias.flags
@@ -22,7 +22,7 @@ public const uint TRUE = 1;
 
 // definition.null_handle
 static partial class Def {
-public const uint NULL_HANDLE = 0;
+public const uint TI_NULL_HANDLE = 0;
 }
 
 // handle.runtime
@@ -154,7 +154,7 @@ static partial class Ffi {
 private static extern TiRuntime ti_create_runtime(
   TiArch arch
 );
-public static TiRuntime CreateRuntime(
+public static TiRuntime TiCreateRuntime(
   TiArch arch
 ) {
   var rv = ti_create_runtime(
@@ -174,7 +174,7 @@ static partial class Ffi {
 private static extern void ti_destroy_runtime(
   TiRuntime runtime
 );
-public static void DestroyRuntime(
+public static void TiDestroyRuntime(
   TiRuntime runtime
 ) {
   ti_destroy_runtime(
@@ -194,7 +194,7 @@ private static extern TiMemory ti_allocate_memory(
   TiRuntime runtime,
   IntPtr allocate_info
 );
-public static TiMemory AllocateMemory(
+public static TiMemory TiAllocateMemory(
   TiRuntime runtime,
   TiMemoryAllocateInfo allocate_info
 ) {
@@ -220,7 +220,7 @@ private static extern void ti_free_memory(
   TiRuntime runtime,
   TiMemory memory
 );
-public static void FreeMemory(
+public static void TiFreeMemory(
   TiRuntime runtime,
   TiMemory memory
 ) {
@@ -242,7 +242,7 @@ private static extern IntPtr ti_map_memory(
   TiRuntime runtime,
   TiMemory memory
 );
-public static IntPtr MapMemory(
+public static IntPtr TiMapMemory(
   TiRuntime runtime,
   TiMemory memory
 ) {
@@ -265,7 +265,7 @@ private static extern void ti_unmap_memory(
   TiRuntime runtime,
   TiMemory memory
 );
-public static void UnmapMemory(
+public static void TiUnmapMemory(
   TiRuntime runtime,
   TiMemory memory
 ) {
@@ -276,19 +276,19 @@ public static void UnmapMemory(
 }
 }
 
-// function.copy_memory
+// function.copy_memory_device_to_device
 static partial class Ffi {
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
     [DllImport ("__Internal")]
 #else
     [DllImport("taichi_c_api")]
 #endif
-private static extern void ti_copy_memory(
+private static extern void ti_copy_memory_device_to_device(
   TiRuntime runtime,
   IntPtr dst_memory,
   IntPtr src_memory
 );
-public static void CopyMemory(
+public static void TiCopyMemoryDeviceToDevice(
   TiRuntime runtime,
   TiMemorySlice dst_memory,
   TiMemorySlice src_memory
@@ -297,7 +297,7 @@ public static void CopyMemory(
   Marshal.StructureToPtr(dst_memory, hglobal_dst_memory, false);
   IntPtr hglobal_src_memory = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(TiMemorySlice)));
   Marshal.StructureToPtr(src_memory, hglobal_src_memory, false);
-  ti_copy_memory(
+  ti_copy_memory_device_to_device(
     runtime,
     hglobal_dst_memory,
     hglobal_src_memory
@@ -320,7 +320,7 @@ private static extern void ti_launch_kernel(
   uint arg_count,
   [MarshalAs(UnmanagedType.LPArray)] TiArgument[] args
 );
-public static void LaunchKernel(
+public static void TiLaunchKernel(
   TiRuntime runtime,
   TiKernel kernel,
   uint arg_count,
@@ -348,7 +348,7 @@ private static extern void ti_launch_compute_graph(
   uint arg_count,
   [MarshalAs(UnmanagedType.LPArray)] TiNamedArgument[] args
 );
-public static void LaunchComputeGraph(
+public static void TiLaunchComputeGraph(
   TiRuntime runtime,
   TiComputeGraph compute_graph,
   uint arg_count,
@@ -373,7 +373,7 @@ static partial class Ffi {
 private static extern void ti_submit(
   TiRuntime runtime
 );
-public static void Submit(
+public static void TiSubmit(
   TiRuntime runtime
 ) {
   ti_submit(
@@ -392,7 +392,7 @@ static partial class Ffi {
 private static extern void ti_wait(
   TiRuntime runtime
 );
-public static void Wait(
+public static void TiWait(
   TiRuntime runtime
 ) {
   ti_wait(
@@ -412,7 +412,7 @@ private static extern TiAotModule ti_load_aot_module(
   TiRuntime runtime,
   string module_path
 );
-public static TiAotModule LoadAotModule(
+public static TiAotModule TiLoadAotModule(
   TiRuntime runtime,
   string module_path
 ) {
@@ -434,7 +434,7 @@ static partial class Ffi {
 private static extern void ti_destroy_aot_module(
   TiAotModule aot_module
 );
-public static void DestroyAotModule(
+public static void TiDestroyAotModule(
   TiAotModule aot_module
 ) {
   ti_destroy_aot_module(
@@ -454,7 +454,7 @@ private static extern TiKernel ti_get_aot_module_kernel(
   TiAotModule aot_module,
   string name
 );
-public static TiKernel GetAotModuleKernel(
+public static TiKernel TiGetAotModuleKernel(
   TiAotModule aot_module,
   string name
 ) {
@@ -477,7 +477,7 @@ private static extern TiComputeGraph ti_get_aot_module_compute_graph(
   TiAotModule aot_module,
   string name
 );
-public static TiComputeGraph GetAotModuleComputeGraph(
+public static TiComputeGraph TiGetAotModuleComputeGraph(
   TiAotModule aot_module,
   string name
 ) {
@@ -489,4 +489,4 @@ public static TiComputeGraph GetAotModuleComputeGraph(
 }
 }
 
-} // namespace Taichi
+} // namespace Taichi.Generated

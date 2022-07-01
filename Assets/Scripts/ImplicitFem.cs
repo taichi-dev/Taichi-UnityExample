@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Taichi.Unity;
-using Unity.Collections;
+using Taichi;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,17 +11,12 @@ public class ImplicitFem : MonoBehaviour {
 
     private Module_implicit_fem _Module;
     private Module_implicit_fem.Data _Data;
-    private IntPtr _VertexBufferPtr;
 
-    List<Vector3> LoadVector3Array(string fname) {
-        List<Vector3> rv = new List<Vector3>();
+    List<float> LoadVector3Array(string fname) {
+        List<float> rv = new List<float>();
         using (var br = new BinaryReader(File.OpenRead(Application.dataPath + $"/Data/ImplicitFem/{fname}.bin"))) {
             while (br.BaseStream.Position != br.BaseStream.Length) {
-                rv.Add(new Vector3 {
-                    x = br.ReadSingle(),
-                    y = br.ReadSingle(),
-                    z = br.ReadSingle(),
-                });
+                rv.Add(br.ReadSingle());
             }
         }
         return rv;
@@ -40,23 +34,23 @@ public class ImplicitFem : MonoBehaviour {
     void Start() {
         _Module = new Module_implicit_fem(Application.dataPath + "/TaichiModules/implicit_fem");
 
-        var c2e = LoadIntArray("c2e");
-        var edges = LoadIntArray("edges");
-        var indices = LoadIntArray("indices");
-        var ox = LoadVector3Array("ox");
-        var vertices = LoadIntArray("vertices");
+        var c2e = LoadIntArray("c2e").ToArray();
+        var edges = LoadIntArray("edges").ToArray();
+        var indices = LoadIntArray("indices").ToArray();
+        var ox = LoadVector3Array("ox").ToArray();
+        var vertices = LoadIntArray("vertices").ToArray();
 
-        uint vertexCount = (uint)(ox.Count);
-        uint edgeCount = (uint)(edges.Count / 2);
-        uint faceCount = (uint)(indices.Count / 3);
-        uint cellCount = (uint)(c2e.Count / 6);
+        int vertexCount = ox.Length / 3;
+        int edgeCount = edges.Length / 2;
+        int faceCount = indices.Length / 3;
+        int cellCount = c2e.Length / 6;
 
         _Data = new Module_implicit_fem.Data(vertexCount, faceCount, edgeCount, cellCount);
-        _Data.c2e.ComputeBuffer.SetData(c2e);
-        _Data.edges.ComputeBuffer.SetData(edges);
-        _Data.indices.ComputeBuffer.SetData(indices);
-        _Data.ox.ComputeBuffer.SetData(ox);
-        _Data.vertices.ComputeBuffer.SetData(vertices);
+        _Data.c2e.CopyFromArray(c2e);
+        _Data.edges.CopyFromArray(edges);
+        _Data.indices.CopyFromArray(indices);
+        _Data.ox.CopyFromArray(ox);
+        _Data.vertices.CopyFromArray(vertices);
 
         Bounds bounds = new Bounds();
         for (int i = 0; i < vertexCount; ++i) {
@@ -65,59 +59,37 @@ public class ImplicitFem : MonoBehaviour {
 
         _MeshFilter = GetComponent<MeshFilter>();
         _Mesh = new Mesh();
-        _Mesh.MarkDynamic();
         var layout = new VertexAttributeDescriptor[] {
             new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3, stream: 0),
             new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3, stream: 1),
         };
-        _Mesh.SetVertexBufferParams(ox.Count, layout);
-        _Mesh.SetVertexBufferData(ox, 0, 0, ox.Count, stream: 0);
-        _Mesh.SetIndexBufferParams(indices.Count, IndexFormat.UInt32);
-        _Mesh.SetIndexBufferData(indices, 0, 0, indices.Count);
+        _Mesh.SetVertexBufferParams(ox.Length, layout);
+        _Mesh.SetVertexBufferData(ox, 0, 0, ox.Length, stream: 0);
+        _Mesh.SetIndexBufferParams(indices.Length, IndexFormat.UInt32);
+        _Mesh.SetIndexBufferData(indices, 0, 0, indices.Length);
         _Mesh.subMeshCount = 1;
         _Mesh.SetSubMesh(0, new SubMeshDescriptor {
             baseVertex = 0,
             bounds = bounds,
             firstVertex = 0,
-            indexCount = indices.Count,
+            indexCount = indices.Length,
             indexStart = 0,
             topology = MeshTopology.Triangles,
-            vertexCount = ox.Count,
+            vertexCount = ox.Length,
         });
         _Mesh.RecalculateNormals();
         _Mesh.MarkModified();
         _Mesh.UploadMeshData(true);
         _MeshFilter.mesh = _Mesh;
 
-        _VertexBufferPtr = _Mesh.GetNativeVertexBufferPtr(0);
+        _Module.Initialize(_Data);
     }
 
-    int _LastFrameNumber = 0;
-    bool _Initialized = false;
     void Update() {
-        if (_LastFrameNumber >= Time.frameCount) { return; }
-        _LastFrameNumber = Time.frameCount;
+        Debug.Log("applied effect in frame " + Time.frameCount.ToString());
 
-        var x = _Data.x.ToCpu();
-        var c2e = _Data.c2e.ToCpu();
-        var edges = _Data.edges.ToCpu();
-        var indices = _Data.indices.ToCpu();
-        var ox = _Data.ox.ToCpu();
-        var vertices = _Data.vertices.ToCpu();
-        if (_Initialized) {
-            Debug.Log("applied effect in frame " + Time.frameCount.ToString());
-            _Module.Apply(_Data);
-            TaichiRuntime.Singleton.CopyMemoryToNativeAsync(_Data.x.ToTiMemorySlice(), _VertexBufferPtr, 0, _Data.x.Size);
-            TaichiRuntime.Singleton.Submit();
-        } else {
-            Debug.Log("triggerred initialization in frame " + Time.frameCount.ToString());
-            if (_Module.Initialize(_Data)) {
-                Debug.Log("initialized in frame " + Time.frameCount.ToString());
-                _Initialized = true;
-                TaichiRuntime.Singleton.Submit();
-            } else {
-                TaichiRuntime.Singleton.Submit();
-            }
-        }
+        _Module.Apply(_Data);
+        _Data.x.CopyToNativeBufferAsync(_Mesh.GetNativeVertexBufferPtr(0));
+        Runtime.Submit();
     }
 }

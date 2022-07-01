@@ -1,17 +1,18 @@
 ﻿using System;
+using Taichi.Generated;
 using UnityEngine;
 
-namespace Taichi.Unity {
-    public class TaichiKernel : IDisposable {
-        public readonly TaichiAotModule AotModule;
+namespace Taichi {
+    public class Kernel : IDisposable {
+        public readonly AotModule AotModule;
         public readonly TiKernel Handle;
 
-        public TaichiKernel(TaichiAotModule aotModule, TiKernel handle) {
+        public Kernel(AotModule aotModule, TiKernel handle) {
             AotModule = aotModule;
             Handle = handle;
         }
 
-        public void Launch(TiArgument[] args) {
+        public void LaunchAsync(TiArgument[] args) {
             for (var i = 0; i < args.Length; ++i) {
                 if (args[i].type == TiArgumentType.TI_ARGUMENT_TYPE_NDARRAY) {
                     if (args[i].value.ndarray.shape.dims.Length != 16) {
@@ -32,7 +33,7 @@ namespace Taichi.Unity {
                     args[i].value.ndarray.elem_shape.dims = new uint[16];
                 }
             }
-            Ffi.LaunchKernelAsyncUNITY(AotModule.Runtime.Handle, Handle, (uint)args.Length, args);
+            Ffi.TixLaunchKernelAsyncUnity(Runtime.Singleton.Handle, Handle, (uint)args.Length, args);
         }
 
 
@@ -46,7 +47,7 @@ namespace Taichi.Unity {
                 disposedValue = true;
             }
         }
-        ~TaichiKernel() {
+        ~Kernel() {
             Dispose(disposing: false);
         }
         public void Dispose() {
