@@ -86,8 +86,6 @@ public class ImplicitFem : MonoBehaviour {
     }
 
     void Update() {
-        Debug.Log("applied effect in frame " + Time.frameCount.ToString());
-
         _Module.Apply(_Data);
         _Data.x.CopyToNativeBufferAsync(_Mesh.GetNativeVertexBufferPtr(0));
         Runtime.Submit();
