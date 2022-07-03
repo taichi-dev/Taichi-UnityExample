@@ -311,7 +311,7 @@ GameObject:
   - component: {fileID: 991498393}
   - component: {fileID: 991498392}
   - component: {fileID: 991498391}
-  - component: {fileID: 991498390}
+  - component: {fileID: 991498395}
   m_Layer: 0
   m_Name: Quad
   m_TagString: Untagged
@@ -319,19 +319,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &991498390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 991498389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d73a849228ffcd40bbc8bf508253e0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UseComputeGraph: 0
 --- !u!64 &991498391
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -409,3 +396,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &991498395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991498389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 945d03c7a62c9544dae617637d565539, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Module: {fileID: -8196383504532815311, guid: 5d318811a7e71724f80ecc4a97516aa4, type: 3}
+  UseComputeGraph: 0

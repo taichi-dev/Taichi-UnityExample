@@ -6,13 +6,18 @@ namespace Taichi {
     public class ComputeGraph : IDisposable {
         public readonly AotModule AotModule;
         public readonly TiComputeGraph Handle;
+        public readonly string Name;
 
-        public ComputeGraph(AotModule aotModule, TiComputeGraph handle) {
+        public ComputeGraph(AotModule aotModule, TiComputeGraph handle, string name) {
             AotModule = aotModule;
             Handle = handle;
+            Name = name;
         }
 
         public void LaunchAsync(TiNamedArgument[] namedArgs) {
+            if (Handle.Inner == IntPtr.Zero) {
+                throw new InvalidOperationException("Ignored launch because kernel handle is null");
+            }
             for (var i = 0; i < namedArgs.Length; ++i) {
                 if (namedArgs[i].argument.type == TiArgumentType.TI_ARGUMENT_TYPE_NDARRAY) {
                     if (namedArgs[i].argument.value.ndarray.memory.Inner == IntPtr.Zero) {

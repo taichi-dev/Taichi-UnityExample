@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Taichi;
@@ -9,6 +8,7 @@ public class ImplicitFem : MonoBehaviour {
     private MeshFilter _MeshFilter;
     private Mesh _Mesh;
 
+    public AotModuleAsset ImplicitFemModule;
     private Module_implicit_fem _Module;
     private Module_implicit_fem.Data _Data;
 
@@ -32,7 +32,7 @@ public class ImplicitFem : MonoBehaviour {
     }
 
     void Start() {
-        _Module = new Module_implicit_fem(Application.dataPath + "/TaichiModules/implicit_fem");
+        _Module = new Module_implicit_fem(ImplicitFemModule);
 
         var c2e = LoadIntArray("c2e").ToArray();
         var edges = LoadIntArray("edges").ToArray();

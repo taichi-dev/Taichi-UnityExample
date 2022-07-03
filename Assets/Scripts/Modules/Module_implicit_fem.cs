@@ -1,11 +1,11 @@
-﻿using Taichi;
+﻿using System.Linq;
+using Taichi;
 
 class Module_implicit_fem {
     const float DT = 7.5e-3f;
     const int NUM_SUBSTEPS = 2;
     const int CG_ITERS = 8;
 
-    AotModule _Module;
     Kernel _Kernel_GetForce;
     Kernel _Kernel_Init;
     Kernel _Kernel_FloorBound;
@@ -62,203 +62,60 @@ class Module_implicit_fem {
         }
     };
 
-    public Module_implicit_fem(string module_path) {
-        _Module = new AotModule(module_path);
-        _Kernel_GetForce = _Module.GetKernel("get_force");
-        _Kernel_Init = _Module.GetKernel("init");
-        _Kernel_FloorBound = _Module.GetKernel("floor_bound");
-        _Kernel_GetMatrix = _Module.GetKernel("get_matrix");
-        _Kernel_MatMulEdge = _Module.GetKernel("matmul_edge");
-        _Kernel_Add = _Module.GetKernel("add");
-        _Kernel_AddScalarNdArray = _Module.GetKernel("add_scalar_ndarray");
-        _Kernel_Dot2Scalar = _Module.GetKernel("dot2scalar");
-        _Kernel_GetB = _Module.GetKernel("get_b");
-        _Kernel_NdArrayToNdArray = _Module.GetKernel("ndarray_to_ndarray");
-        _Kernel_FillNdArray = _Module.GetKernel("fill_ndarray");
-        _Kernel_ClearField = _Module.GetKernel("clear_field");
-        _Kernel_InitR2 = _Module.GetKernel("init_r_2");
-        _Kernel_UpdateAlpha = _Module.GetKernel("update_alpha");
-        _Kernel_UpdateBetaR2 = _Module.GetKernel("update_beta_r_2");
+    public Module_implicit_fem(AotModuleAsset module) {
+        var kernels = module.GetAllKernels().ToDictionary(x => x.Name);
+        _Kernel_GetForce = kernels["get_force"];
+        _Kernel_Init = kernels["init"];
+        _Kernel_FloorBound = kernels["floor_bound"];
+        _Kernel_GetMatrix = kernels["get_matrix"];
+        _Kernel_MatMulEdge = kernels["matmul_edge"];
+        _Kernel_Add = kernels["add"];
+        _Kernel_AddScalarNdArray = kernels["add_scalar_ndarray"];
+        _Kernel_Dot2Scalar = kernels["dot2scalar"];
+        _Kernel_GetB = kernels["get_b"];
+        _Kernel_NdArrayToNdArray = kernels["ndarray_to_ndarray"];
+        _Kernel_FillNdArray = kernels["fill_ndarray"];
+        _Kernel_ClearField = kernels["clear_field"];
+        _Kernel_InitR2 = kernels["init_r_2"];
+        _Kernel_UpdateAlpha = kernels["update_alpha"];
+        _Kernel_UpdateBetaR2 = kernels["update_beta_r_2"];
     }
 
     public bool Initialize(Data data) {
         // Note these are `&` (logical and) and is not `&&` (fusing logical
         // and). So all the initialization states are checked and memory
         // imports are triggered.
-        {
-            var args = new ArgumentListBuilder()
-                .ToArray();
-            _Kernel_ClearField.LaunchAsync(args);
-        }
-        {
-            var args = new ArgumentListBuilder()
-                .Add(data.x)
-                .Add(data.v)
-                .Add(data.f)
-                .Add(data.ox)
-                .Add(data.vertices)
-                .ToArray();
-            _Kernel_Init.LaunchAsync(args);
-        }
-        {
-            var args = new ArgumentListBuilder()
-                .Add(data.c2e)
-                .Add(data.vertices)
-                .ToArray();
-            _Kernel_GetMatrix.LaunchAsync(args);
-        }
+        _Kernel_ClearField.LaunchAsync();
+        _Kernel_Init.LaunchAsync(data.x, data.v, data.f, data.ox, data.vertices);
+        _Kernel_GetMatrix.LaunchAsync(data.c2e, data.vertices);
         return true;
     }
 
     public void Apply(Data data) {
         for (int i = 0; i < NUM_SUBSTEPS; ++i) {
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.x)
-                    .Add(data.f)
-                    .Add(data.vertices)
-                    .Add(data.g_x)
-                    .Add(data.g_y)
-                    .Add(data.g_z)
-                    .ToArray();
-                _Kernel_GetForce.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.v)
-                    .Add(data.b)
-                    .Add(data.f)
-                    .ToArray();
-                _Kernel_GetB.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.mul_ans)
-                    .Add(data.v)
-                    .Add(data.edges)
-                    .ToArray();
-                _Kernel_MatMulEdge.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.r0)
-                    .Add(data.b)
-                    .Add(-1.0f)
-                    .Add(data.mul_ans)
-                    .ToArray();
-                _Kernel_Add.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.p0)
-                    .Add(data.r0)
-                    .ToArray();
-                _Kernel_NdArrayToNdArray.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.r0)
-                    .Add(data.r0)
-                    .ToArray();
-                _Kernel_Dot2Scalar.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .ToArray();
-                _Kernel_InitR2.LaunchAsync(args);
-            }
+            _Kernel_GetForce.LaunchAsync(data.x, data.f, data.vertices, data.g_x, data.g_y, data.g_z);
+            _Kernel_GetB.LaunchAsync(data.v, data.b, data.f);
+            _Kernel_MatMulEdge.LaunchAsync(data.mul_ans, data.v, data.edges);
+            _Kernel_Add.LaunchAsync(data.r0, data.b, -1.0f, data.mul_ans);
+            _Kernel_NdArrayToNdArray.LaunchAsync(data.p0, data.r0);
+            _Kernel_Dot2Scalar.LaunchAsync(data.r0, data.r0);
+            _Kernel_InitR2.LaunchAsync();
 
             for (int j = 0; j < CG_ITERS; ++j) {
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.mul_ans)
-                        .Add(data.p0)
-                        .Add(data.edges)
-                        .ToArray();
-                    _Kernel_MatMulEdge.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.p0)
-                        .Add(data.mul_ans)
-                        .ToArray();
-                    _Kernel_Dot2Scalar.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.alpha_scalar)
-                        .ToArray();
-                    _Kernel_UpdateAlpha.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.v)
-                        .Add(data.v)
-                        .Add(1.0f)
-                        .Add(data.alpha_scalar)
-                        .Add(data.p0)
-                        .ToArray();
-                    _Kernel_AddScalarNdArray.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.r0)
-                        .Add(data.r0)
-                        .Add(-1.0f)
-                        .Add(data.alpha_scalar)
-                        .Add(data.mul_ans)
-                        .ToArray();
-                    _Kernel_AddScalarNdArray.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.r0)
-                        .Add(data.r0)
-                        .ToArray();
-                    _Kernel_Dot2Scalar.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.beta_scalar)
-                        .ToArray();
-                    _Kernel_UpdateBetaR2.LaunchAsync(args);
-                }
-                {
-                    var args = new ArgumentListBuilder()
-                        .Add(data.p0)
-                        .Add(data.r0)
-                        .Add(1.0f)
-                        .Add(data.beta_scalar)
-                        .Add(data.p0)
-                        .ToArray();
-                    _Kernel_AddScalarNdArray.LaunchAsync(args);
-                }
+                _Kernel_MatMulEdge.LaunchAsync(data.mul_ans, data.p0, data.edges);
+                _Kernel_Dot2Scalar.LaunchAsync(data.p0, data.mul_ans);
+                _Kernel_UpdateAlpha.LaunchAsync(data.alpha_scalar);
+                _Kernel_AddScalarNdArray.LaunchAsync(data.v, data.v, 1.0f, data.alpha_scalar, data.p0);
+                _Kernel_AddScalarNdArray.LaunchAsync(data.r0, data.r0, -1.0f, data.alpha_scalar, data.mul_ans);
+                _Kernel_Dot2Scalar.LaunchAsync(data.r0, data.r0);
+                _Kernel_UpdateBetaR2.LaunchAsync(data.beta_scalar);
+                _Kernel_AddScalarNdArray.LaunchAsync(data.p0, data.r0, 1.0f, data.beta_scalar, data.p0);
             }
 
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.f)
-                    .Add(0.0f)
-                    .ToArray();
-                _Kernel_FillNdArray.LaunchAsync(args);
-            }
-            {
-                var args = new ArgumentListBuilder()
-                    .Add(data.x)
-                    .Add(data.x)
-                    .Add(DT)
-                    .Add(data.v)
-                    .ToArray();
-                _Kernel_Add.LaunchAsync(args);
-            }
+            _Kernel_FillNdArray.LaunchAsync(data.f, 0.0f);
+            _Kernel_Add.LaunchAsync(data.x, data.x, DT, data.v);
         }
 
-        {
-            var args = new ArgumentListBuilder()
-                .Add(data.x)
-                .Add(data.v)
-                .ToArray();
-            _Kernel_FloorBound.LaunchAsync(args);
-        }
+        _Kernel_FloorBound.LaunchAsync(data.x, data.v);
     }
 }

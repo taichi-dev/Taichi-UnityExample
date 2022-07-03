@@ -6,13 +6,18 @@ namespace Taichi {
     public class Kernel : IDisposable {
         public readonly AotModule AotModule;
         public readonly TiKernel Handle;
+        public readonly string Name;
 
-        public Kernel(AotModule aotModule, TiKernel handle) {
+        public Kernel(AotModule aotModule, TiKernel handle, string name) {
             AotModule = aotModule;
             Handle = handle;
+            Name = name;
         }
 
         public void LaunchAsync(TiArgument[] args) {
+            if (Handle.Inner == IntPtr.Zero) {
+                throw new InvalidOperationException("Ignored launch because kernel handle is null");
+            }
             for (var i = 0; i < args.Length; ++i) {
                 if (args[i].type == TiArgumentType.TI_ARGUMENT_TYPE_NDARRAY) {
                     if (args[i].value.ndarray.shape.dims.Length != 16) {
@@ -34,6 +39,23 @@ namespace Taichi {
                 }
             }
             Ffi.TixLaunchKernelAsyncUnity(Runtime.Singleton.Handle, Handle, (uint)args.Length, args);
+        }
+        public void LaunchAsync(params object[] args) {
+            var builder = new ArgumentListBuilder();
+            foreach (var arg in args) {
+                if (arg.GetType() == typeof(int)) {
+                    builder.Add((int)arg);
+                } else if (arg.GetType() == typeof(float)) {
+                    builder.Add((float)arg);
+                } else if (arg.GetType() == typeof(NdArray<int>)) {
+                    builder.Add((NdArray<int>)arg);
+                } else if (arg.GetType() == typeof(NdArray<float>)) {
+                    builder.Add((NdArray<float>)arg);
+                } else {
+                    throw new ArgumentException("Unsupported data type; try `LaunchAsync(TiArgument[])`?");
+                }
+            }
+            LaunchAsync(builder.ToArray());
         }
 
 

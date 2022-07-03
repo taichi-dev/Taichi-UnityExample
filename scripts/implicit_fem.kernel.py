@@ -354,7 +354,7 @@ def run_aot():
                    template_args={
                        'beta_scalar': beta_scalar,
                    })
-    mod.save("Assets/TaichiModules/implicit_fem", '')
+    mod.archive("Assets/Resources/TaichiModules/implicit_fem.kernel.tcm")
     print('AOT done')
 
 

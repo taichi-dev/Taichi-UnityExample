@@ -2,6 +2,7 @@
 using Taichi.Generated;
 
 namespace Taichi {
+
     public class AotModule : IDisposable {
         public readonly TiAotModule Handle;
 
@@ -10,10 +11,10 @@ namespace Taichi {
         }
 
         public Kernel GetKernel(string name) {
-            return new Kernel(this, Ffi.TiGetAotModuleKernel(Handle, name));
+            return new Kernel(this, Ffi.TiGetAotModuleKernel(Handle, name), name);
         }
         public ComputeGraph GetComputeGraph(string name) {
-            return new ComputeGraph(this, Ffi.TiGetAotModuleComputeGraph(Handle, name));
+            return new ComputeGraph(this, Ffi.TiGetAotModuleComputeGraph(Handle, name), name);
         }
 
 

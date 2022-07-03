@@ -28,7 +28,7 @@ mod.add_kernel(fractal,
                 template_args={
                     'canvas': canvas,
                 })
-mod.save("Assets/TaichiModules/fractal", "")
+mod.archive("Assets/Resources/TaichiModules/fractal.kernel.tcm")
 
 gui = ti.GUI("Julia Set", res=(n * 2, n))
 
