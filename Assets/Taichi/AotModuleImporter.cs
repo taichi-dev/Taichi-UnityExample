@@ -1,7 +1,10 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+
+using System;
 using System.IO;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+
 
 namespace Taichi {
     [ScriptedImporter(1, "tcm")]
@@ -20,3 +23,5 @@ namespace Taichi {
         }
     }
 }
+
+#endif // UNITY_EDITOR

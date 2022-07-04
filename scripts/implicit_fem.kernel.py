@@ -15,14 +15,14 @@ args = parser.parse_args()
 ti.init(arch=ti.vulkan)
 
 def get_rel_path(*segs):
-    return os.path.join("Assets/Data/ImplicitFem", *segs)
+    return os.path.join("Assets/Resources/Data/ImplicitFem", *segs)
 
 
-c2e_np = np.fromfile(get_rel_path('c2e.bin'), dtype=np.int32).reshape(-1, 6)
-vertices_np = np.fromfile(get_rel_path('vertices.bin'), dtype=np.int32).reshape(-1, 4)
-indices_np = np.fromfile(get_rel_path('indices.bin'), dtype=np.int32).reshape(-1, 3)
-edges_np = np.fromfile(get_rel_path('edges.bin'), dtype=np.int32).reshape(-1, 2)
-ox_np = np.fromfile(get_rel_path('ox.bin'), dtype=np.float32).reshape(-1, 3)
+c2e_np = np.fromfile(get_rel_path('c2e.bytes'), dtype=np.int32).reshape(-1, 6)
+vertices_np = np.fromfile(get_rel_path('vertices.bytes'), dtype=np.int32).reshape(-1, 4)
+indices_np = np.fromfile(get_rel_path('indices.bytes'), dtype=np.int32).reshape(-1, 3)
+edges_np = np.fromfile(get_rel_path('edges.bytes'), dtype=np.int32).reshape(-1, 2)
+ox_np = np.fromfile(get_rel_path('ox.bytes'), dtype=np.float32).reshape(-1, 3)
 
 n_edges = edges_np.shape[0]
 n_verts = ox_np.shape[0]
