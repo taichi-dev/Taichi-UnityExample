@@ -1,6 +1,6 @@
 # Taichi-UnityExample
 
-This repositories demonstrate Taichi-Unity interopability with sample scenes.
+This repository demonstrates Taichi-Unity interopability with sample scenes.
 
 ## Prerequisites
 
