@@ -30,6 +30,7 @@ sym_t = ti.graph.Arg(ti.graph.ArgKind.SCALAR,
 sym_canvas = ti.graph.Arg(ti.graph.ArgKind.NDARRAY,
                           "canvas",
                           ti.f32,
+                          field_dim=2,
                           element_shape=())
 
 gb = ti.graph.GraphBuilder()
@@ -50,7 +51,7 @@ while True:
         "canvas": canvas,
     }
     canvas2 = np.repeat(canvas.to_numpy().reshape(n * 2,n,1), 3, 2)
-    
+
     graph.run(args)
     gui.set_image(canvas2)
     gui.show()
