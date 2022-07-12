@@ -39,7 +39,7 @@ graph = gb.compile()
 
 mod = ti.aot.Module(ti.vulkan)
 mod.add_graph('fractal', graph)
-mod.save("Assets/TaichiModules/fractal.cgraph", "")
+mod.archive("Assets/Resources/TaichiModules/fractal.cgraph.tcm")
 
 gui = ti.GUI("Julia Set", res=(n * 2, n))
 

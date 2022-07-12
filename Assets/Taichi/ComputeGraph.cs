@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Taichi.Generated;
 using UnityEngine;
 
@@ -33,6 +34,23 @@ namespace Taichi {
                 }
             }
             Ffi.TixLaunchComputeGraphAsyncUnity(Runtime.Singleton.Handle, Handle, (uint)namedArgs.Length, namedArgs);
+        }
+        public void LaunchAsync(Dictionary<string, object> namedArgs) {
+            var builder = new NamedArgumentListBuilder();
+            foreach (var arg in namedArgs) {
+                if (arg.Value.GetType() == typeof(int)) {
+                    builder.Add(arg.Key, (int)arg.Value);
+                } else if (arg.Value.GetType() == typeof(float)) {
+                    builder.Add(arg.Key, (float)arg.Value);
+                } else if (arg.Value.GetType() == typeof(NdArray<int>)) {
+                    builder.Add(arg.Key, (NdArray<int>)arg.Value);
+                } else if (arg.Value.GetType() == typeof(NdArray<float>)) {
+                    builder.Add(arg.Key, (NdArray<float>)arg.Value);
+                } else {
+                    throw new ArgumentException("Unsupported data type; try `LaunchAsync(TiArgument[])`?");
+                }
+            }
+            LaunchAsync(builder.ToArray());
         }
 
 
