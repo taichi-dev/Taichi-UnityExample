@@ -30,6 +30,7 @@ sym_t = ti.graph.Arg(ti.graph.ArgKind.SCALAR,
 sym_canvas = ti.graph.Arg(ti.graph.ArgKind.NDARRAY,
                           "canvas",
                           ti.f32,
+                          field_dim=2,
                           element_shape=())
 
 gb = ti.graph.GraphBuilder()
@@ -38,7 +39,7 @@ graph = gb.compile()
 
 mod = ti.aot.Module(ti.vulkan)
 mod.add_graph('fractal', graph)
-mod.save("Assets/TaichiModules/fractal.cgraph", "")
+mod.archive("Assets/Resources/TaichiModules/fractal.cgraph.tcm")
 
 gui = ti.GUI("Julia Set", res=(n * 2, n))
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Taichi;
 using UnityEngine;
@@ -8,18 +9,23 @@ public partial class Fractal : MonoBehaviour {
 
     public AotModuleAsset Module;
     private Kernel _Kernel_fractal;
+    private ComputeGraph _ComputeGraph_fractal;
     private NdArray<float> _Canvas;
 
     private MeshRenderer _MeshRenderer;
     private Texture2D _Texture;
     private Color[] _FractalDataColor;
 
-    public bool UseComputeGraph = false;
-
     // Start is called before the first frame update
     void Start() {
         var kernels = Module.GetAllKernels().ToDictionary(x => x.Name);
-        _Kernel_fractal = kernels["fractal"];
+        var cgraphs = Module.GetAllComputeGrpahs().ToDictionary(x => x.Name);
+        if (kernels.ContainsKey("fractal")) {
+            _Kernel_fractal = kernels["fractal"];
+        }
+        if (cgraphs.ContainsKey("fractal")) {
+            _ComputeGraph_fractal = cgraphs["fractal"];
+        }
 
         _Canvas = new NdArray<float>(new int[] { WIDTH, HEIGHT }, true, false);
         _Texture = new Texture2D(WIDTH, HEIGHT);
@@ -60,7 +66,16 @@ public partial class Fractal : MonoBehaviour {
         // Now launch kernels and compute graphs, but it won't be
         // immediately executed on graphics device.
         float t = Time.frameCount * 0.03f;
-        _Kernel_fractal.LaunchAsync(t, _Canvas);
+
+        if (_ComputeGraph_fractal != null) {
+            _ComputeGraph_fractal.LaunchAsync(new Dictionary<string, object> {
+                { "t", t },
+                { "canvas", _Canvas },
+            });
+        }
+        if (_Kernel_fractal != null) {
+            _Kernel_fractal.LaunchAsync(t, _Canvas);
+        }
         // Everything settled. Submit launched kernels and compute graphs to
         // the device for execution. Note that we can only submit ONCE in a
         // frame and we CANNOT wait on the device, because `Update is called
