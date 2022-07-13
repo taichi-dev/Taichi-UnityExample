@@ -32,7 +32,7 @@ namespace Taichi {
 
         public void Read<T>(T[] dst) {
             if (!HostRead) {
-                throw new InvalidOperationException("Read from non-host-writable memory is not allowed");
+                throw new InvalidOperationException("Read from non-host-readable memory is not allowed");
             } else {
                 if (typeof(T) == typeof(byte)) {
                     Ffi.TixCopyMemoryDeviceToHostUnity(Runtime.Singleton.Handle, dst as byte[], 0, ToTiMemorySlice());
@@ -88,7 +88,7 @@ namespace Taichi {
                 } else if (typeof(T) == typeof(double)) {
                     Ffi.TixCopyMemoryHostToDeviceUnity(Runtime.Singleton.Handle, ToTiMemorySlice(), src as double[], 0);
                 } else {
-                    throw new InvalidOperationException("Unsupported type for read access");
+                    throw new InvalidOperationException("Unsupported type for write access");
                 }
             }
         }

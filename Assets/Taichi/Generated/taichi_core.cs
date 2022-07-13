@@ -72,6 +72,25 @@ public enum TiArch {
   TI_ARCH_MAX_ENUM = 0x7fffffff,
 }
 
+// enumeration.data_type
+public enum TiDataType {
+  TI_DATA_TYPE_F16 = 0,
+  TI_DATA_TYPE_F32 = 1,
+  TI_DATA_TYPE_F64 = 2,
+  TI_DATA_TYPE_I8 = 3,
+  TI_DATA_TYPE_I16 = 4,
+  TI_DATA_TYPE_I32 = 5,
+  TI_DATA_TYPE_I64 = 6,
+  TI_DATA_TYPE_U1 = 7,
+  TI_DATA_TYPE_U8 = 8,
+  TI_DATA_TYPE_U16 = 9,
+  TI_DATA_TYPE_U32 = 10,
+  TI_DATA_TYPE_U64 = 11,
+  TI_DATA_TYPE_GEN = 12,
+  TI_DATA_TYPE_UNKNOWN = 13,
+  TI_DATA_TYPE_MAX_ENUM = 0x7fffffff,
+}
+
 // enumeration.argument_type
 public enum TiArgumentType {
   TI_ARGUMENT_TYPE_I32 = 0,
@@ -120,6 +139,7 @@ public struct TiNdArray {
   public TiMemory memory;
   public TiNdShape shape;
   public TiNdShape elem_shape;
+  public TiDataType elem_type;
 }
 
 // union.argument_value
@@ -489,4 +509,4 @@ public static TiComputeGraph TiGetAotModuleComputeGraph(
 }
 }
 
-} // namespace Taichi.Generated
+} // namespace Taichi
