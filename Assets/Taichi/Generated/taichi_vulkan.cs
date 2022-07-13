@@ -4,4 +4,4 @@ using System.Collections.Generic;
 
 namespace Taichi.Generated {
 
-} // namespace Taichi.Generated
+} // namespace Taichi

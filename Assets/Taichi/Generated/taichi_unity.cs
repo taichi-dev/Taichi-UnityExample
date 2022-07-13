@@ -778,4 +778,4 @@ public static IntPtr TixSubmitAsyncUnity(
 }
 }
 
-} // namespace Taichi.Generated
+} // namespace Taichi
