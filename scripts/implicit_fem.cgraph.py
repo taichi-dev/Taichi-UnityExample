@@ -1,7 +1,5 @@
 import argparse
 import os
-import pathlib
-import shutil
 
 import numpy as np
 import taichi as ti
@@ -12,7 +10,7 @@ parser.add_argument('--aot', default=False, action='store_true')
 args = parser.parse_args()
 
 # TODO: asserts cuda or vulkan backend
-ti.init(arch=ti.vulkan)
+ti.init(arch=ti.vulkan, vk_api_version="1.0")
 
 def get_rel_path(*segs):
     return os.path.join("Assets/Resources/Data/ImplicitFem", *segs)
@@ -162,8 +160,8 @@ def get_matrix(c2e: ti.types.ndarray(field_dim=1), vertices: ti.types.ndarray(fi
 
 
 @ti.kernel
-def matmul_edge(ret: ti.types.ndarray(), vel: ti.types.ndarray(),
-        edges: ti.types.ndarray(), m: ti.types.ndarray(), hes_edge: ti.types.ndarray(), hes_vert: ti.types.ndarray()):
+def matmul_edge(ret: ti.types.ndarray(field_dim=1), vel: ti.types.ndarray(field_dim=1),
+        edges: ti.types.ndarray(field_dim=1), m: ti.types.ndarray(field_dim=1), hes_edge: ti.types.ndarray(field_dim=1), hes_vert: ti.types.ndarray(field_dim=1)):
     for i in ret:
         ret[i] = vel[i] * m[i] + hes_vert[i] * vel[i]
     for e in edges:
@@ -174,22 +172,22 @@ def matmul_edge(ret: ti.types.ndarray(), vel: ti.types.ndarray(),
 
 
 @ti.kernel
-def add(ans: ti.types.ndarray(), a: ti.types.ndarray(), k: ti.f32,
-        b: ti.types.ndarray()):
+def add(ans: ti.types.ndarray(field_dim=1), a: ti.types.ndarray(field_dim=1), k: ti.f32,
+        b: ti.types.ndarray(field_dim=1)):
     for i in ans:
         ans[i] = a[i] + k * b[i]
 
 
 @ti.kernel
-def add_scalar_ndarray(ans: ti.types.ndarray(), a: ti.types.ndarray(),
-                       k: ti.f32, scalar: ti.types.ndarray(),
-                       b: ti.types.ndarray()):
+def add_scalar_ndarray(ans: ti.types.ndarray(field_dim=1), a: ti.types.ndarray(field_dim=1),
+                       k: ti.f32, scalar: ti.types.ndarray(field_dim=0),
+                       b: ti.types.ndarray(field_dim=1)):
     for i in ans:
         ans[i] = a[i] + k * scalar[None] * b[i]
 
 
 @ti.kernel
-def dot2scalar(a: ti.types.ndarray(), b: ti.types.ndarray(), dot_ans: ti.types.ndarray()):
+def dot2scalar(a: ti.types.ndarray(field_dim=1), b: ti.types.ndarray(field_dim=1), dot_ans: ti.types.ndarray(field_dim=0)):
     dot_ans[None] = 0.0
     for i in a:
         dot_ans[None] += a[i].dot(b[i])
@@ -202,29 +200,29 @@ def get_b(v: ti.types.ndarray(field_dim=1), b: ti.types.ndarray(field_dim=1), f:
 
 
 @ti.kernel
-def ndarray_to_ndarray(ndarray: ti.types.ndarray(), other: ti.types.ndarray()):
+def ndarray_to_ndarray(ndarray: ti.types.ndarray(field_dim=1), other: ti.types.ndarray(field_dim=1)):
     for I in ti.grouped(ndarray):
         ndarray[I] = other[I]
 
 
 @ti.kernel
-def fill_ndarray(ndarray: ti.types.ndarray(), val: ti.f32):
+def fill_ndarray(ndarray: ti.types.ndarray(field_dim=1), val: ti.f32):
     for I in ti.grouped(ndarray):
         ndarray[I] = [val, val, val]
 
 
 @ti.kernel
-def init_r_2(dot_ans: ti.types.ndarray(), r_2_scalar: ti.types.ndarray()):
+def init_r_2(dot_ans: ti.types.ndarray(field_dim=0), r_2_scalar: ti.types.ndarray(field_dim=0)):
     r_2_scalar[None] = dot_ans[None]
 
 
 @ti.kernel
-def update_alpha(alpha_scalar: ti.types.ndarray(), dot_ans: ti.types.ndarray(), r_2_scalar: ti.types.ndarray()):
+def update_alpha(alpha_scalar: ti.types.ndarray(field_dim=0), dot_ans: ti.types.ndarray(field_dim=0), r_2_scalar: ti.types.ndarray(field_dim=0)):
     alpha_scalar[None] = r_2_scalar[None] / (dot_ans[None] + epsilon)
 
 
 @ti.kernel
-def update_beta_r_2(beta_scalar: ti.types.ndarray(), dot_ans: ti.types.ndarray(), r_2_scalar: ti.types.ndarray()):
+def update_beta_r_2(beta_scalar: ti.types.ndarray(field_dim=0), dot_ans: ti.types.ndarray(field_dim=0), r_2_scalar: ti.types.ndarray(field_dim=0)):
     beta_scalar[None] = dot_ans[None] / (r_2_scalar[None] + epsilon)
     r_2_scalar[None] = dot_ans[None]
 
@@ -270,7 +268,7 @@ def init(x: ti.types.ndarray(field_dim=1), v: ti.types.ndarray(field_dim=1), f: 
 
 
 @ti.kernel
-def floor_bound(x: ti.types.ndarray(), v: ti.types.ndarray()):
+def floor_bound(x: ti.types.ndarray(field_dim=1), v: ti.types.ndarray(field_dim=1)):
     bounds = ti.Vector([1, aspect_ratio, 1])
     for u in x:
         for i in ti.static(range(3)):
@@ -302,7 +300,7 @@ def run_aot():
 
 
 @ti.kernel
-def convert_to_field(x: ti.types.ndarray(), y: ti.template()):
+def convert_to_field(x: ti.types.ndarray(field_dim=1), y: ti.template()):
     for I in ti.grouped(x):
         y[I] = x[I]
 

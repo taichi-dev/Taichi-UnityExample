@@ -194,12 +194,23 @@ public class ImplicitFem : MonoBehaviour {
             _Kernel_Init.LaunchAsync(x, v, f, ox, vertices);
             _Kernel_GetMatrix.LaunchAsync(c2e, vertices);
         }
+
+        if (SystemInfo.supportsGyroscope) {
+            Input.gyro.enabled = true;
+        }
     }
 
     void Update() {
-        float g_x = -(Input.mousePosition.x / Screen.width * 2.0f - 1.0f) * 9.8f;
-        float g_y = (Input.mousePosition.y / Screen.height * 2.0f - 1.0f) * 9.8f;
-        float g_z = 0.0f;
+        float g_x, g_y, g_z;
+        if (SystemInfo.supportsGyroscope) {
+            g_x = Vector3.Dot(Input.gyro.gravity, Vector3.left) * 9.8f;
+            g_y = Vector3.Dot(Input.gyro.gravity, Vector3.up) * 9.8f;
+            g_z = 0.0f;
+        } else {
+            g_x = -(Input.mousePosition.x / Screen.width * 2.0f - 1.0f) * 9.8f;
+            g_y = (Input.mousePosition.y / Screen.height * 2.0f - 1.0f) * 9.8f;
+            g_z = 0.0f;
+        }
 
         const float DT = 7.5e-3f;
 

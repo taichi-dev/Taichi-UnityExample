@@ -16,3 +16,12 @@ This repository presents several demo scenes, each can be found in `Assets/Scene
 - `ImplicitFem`: A physically-based soft-body simulation emitting vertex data on-the-flight.
 
 Also note that the project can be built into Unity Player.
+
+## Notes for Android
+
+Note that some player settings are changed for Android
+
+- Minimum version is changed to 26 (Android Oreo), which is the version the native libraries are compiled;
+- Scripting backend is switched to IL2CPP;
+- Library arch is set to `ARM64`, support for `ARMv7` is canceled;
+- Default orientation is fixed portrait.
