@@ -68,7 +68,7 @@ namespace Taichi {
             _Memory.Read(data);
         }
         public T[] ToArray() {
-            var rv = new T[Shape2Count(Shape)];
+            var rv = new T[Shape2Count(Shape) * Shape2Count(ElemShape)];
             CopyToArray(rv);
             return rv;
         }

@@ -3,12 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Normal
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - ScreenSurfaceLiquid
   - Water
   - UI
   - 
