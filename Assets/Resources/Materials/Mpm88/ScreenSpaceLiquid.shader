@@ -4,7 +4,8 @@ Shader "Unlit/ScreenSpaceLiquid"
     {
         _SceneColor ("Texture", 2D) = "white" {}
         _SceneColorInvSize ("Scene Color Size Inverse", Vector) = (1,1,1,1)
-        _SceneNormalDepth ("Texture", 2D) = "white" {}
+        _SceneNormal ("Texture", 2D) = "white" {}
+        _SceneNormalInvSize("Scene Color Size Inverse", Vector) = (1,1,1,1)
     }
     SubShader
     {
@@ -35,7 +36,11 @@ Shader "Unlit/ScreenSpaceLiquid"
 
             sampler2D _SceneColor;
             float2 _SceneColorInvSize;
-            sampler2D _SceneNormalDepth;
+            sampler2D _SceneNormal;
+            float2 _SceneNormalInvSize;
+
+            float3 _LiquidColor;
+            float4 _LiquidSpecularColor;
 
             const float DEPTH_RANGE = 1000.0f - 0.3f;
 
@@ -48,32 +53,27 @@ Shader "Unlit/ScreenSpaceLiquid"
             }
 
             float3 uv2pos(float2 uv) {
-                float depth = tex2D(_SceneNormalDepth, uv).x;
+                float depth = tex2D(_SceneNormal, uv).x;
                 return float3(uv * 2.0f - 1.0f, depth);
             }
 
             float4 frag(v2f i) : SV_Target
             {
+                float3 lightDir = normalize(float3(0,1,1));
+
                 float4 sceneColor = tex2D(_SceneColor, i.uv);
 
+                float4 normal_mask = tex2D(_SceneNormal, i.uv);
+                float3 normal = normalize(normal_mask.rgb + float3(0, 0, 1e-5f));
 
-                float alpha = tex2D(_SceneNormalDepth, i.uv).a;
+
+                float liquidSpaceMask = saturate(normal_mask.a);
+                float LoN = dot(lightDir, normal);
+                float3 liquidSpecular = _LiquidSpecularColor.rgb * pow(LoN, exp(1 + 10 * _LiquidSpecularColor.a));
 
 
-                float du = _SceneColorInvSize.x;
-                float dv = _SceneColorInvSize.y;
-
-                float2 uv_o = i.uv;
-                float2 uv_x = i.uv + float2(du, 0.0f);
-                float2 uv_y = i.uv + float2(0.0f, dv);
-
-                float3 pos_o = uv2pos(uv_o);
-                float3 pos_x = uv2pos(uv_x);
-                float3 pos_y = uv2pos(uv_y);
-
-                float3 normal = normalize(cross(pos_x - pos_o, pos_y - pos_o));
-
-                float3 color = alpha < 0.5f ? sceneColor.xyz : normal.xyz;
+                //float3 color = sceneColor * lerp(1, _LiquidColor, liquidSpaceMask) + liquidSpecular * liquidSpaceMask;
+                float3 color = lerp(sceneColor, _LiquidColor, liquidSpaceMask) + liquidSpecular * liquidSpaceMask;
                 return float4(color, 1.0f);
             }
             ENDCG

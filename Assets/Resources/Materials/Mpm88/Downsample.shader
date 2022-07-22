@@ -43,14 +43,25 @@ Shader "Unlit/Downsample"
                 return o;
             }
 
+            float SampleMainTex(float2 uv, float alpha) {
+              float radian = alpha * 2 * 3.1415926f;
+              float du = _MainTexInvSize.x * cos(radian);
+              float dv = _MainTexInvSize.y * sin(radian);
+              return tex2D(_MainTex, uv + 2 * float2(du, dv));
+            }
+
             float4 frag (v2f i) : SV_Target
             {
                 float4 color =
-                  tex2D(_MainTex, i.uv + float2( _MainTexInvSize.x,  _MainTexInvSize.y)) * 0.25f +
-                  tex2D(_MainTex, i.uv + float2( _MainTexInvSize.x, -_MainTexInvSize.y)) * 0.25f +
-                  tex2D(_MainTex, i.uv + float2(-_MainTexInvSize.x,  _MainTexInvSize.y)) * 0.25f +
-                  tex2D(_MainTex, i.uv + float2(-_MainTexInvSize.x, -_MainTexInvSize.y)) * 0.25f;
-                return color;
+                  SampleMainTex(i.uv, 0.0f / 8.0f) +
+                  SampleMainTex(i.uv, 1.0f / 8.0f) +
+                  SampleMainTex(i.uv, 2.0f / 8.0f) +
+                  SampleMainTex(i.uv, 3.0f / 8.0f) +
+                  SampleMainTex(i.uv, 4.0f / 8.0f) +
+                  SampleMainTex(i.uv, 5.0f / 8.0f) +
+                  SampleMainTex(i.uv, 6.0f / 8.0f) +
+                  SampleMainTex(i.uv, 7.0f / 8.0f);
+                return color / 8.0f;
             }
             ENDCG
         }

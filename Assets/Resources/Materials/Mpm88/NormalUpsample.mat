@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Downsample
-  m_Shader: {fileID: 4800000, guid: 432ec042db8d90140bd278545a52d4d9, type: 3}
+  m_Name: NormalUpsample
+  m_Shader: {fileID: 4800000, guid: 1675821653bd66d4480c95b21b4dae37, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -55,6 +55,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SameSizeTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -75,5 +79,5 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainTexInvSize: {r: 0.015625, g: 0.015625, b: 0, a: 0}
+    - _MainTexInvSize: {r: 0.0016666667, g: 0.0017730496, b: 0, a: 0}
   m_BuildTextureStacks: []

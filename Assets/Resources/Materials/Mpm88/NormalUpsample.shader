@@ -1,4 +1,4 @@
-Shader "Unlit/Upsample"
+Shader "Unlit/NormalUpsample"
 {
     Properties
     {
@@ -45,17 +45,26 @@ Shader "Unlit/Upsample"
                 return o;
             }
 
-            float SampleMainTex(float2 uv, float alpha) {
+            float4 SampleSameSizeTex(float2 uv) {
+              float4 normal_mask = tex2D(_SameSizeTex, uv);
+              float mask = saturate(normal_mask.w);
+              float3 normal = normal_mask.xyz;
+              return float4(normal, mask);
+            }
+            float4 SampleMainTex(float2 uv, float alpha) {
               float radian = alpha * 2 * 3.1415926f;
               float du = _MainTexInvSize.x * cos(radian);
               float dv = _MainTexInvSize.y * sin(radian);
-              return tex2D(_MainTex, uv + 2 * float2(du, dv));
+              float4 normal_mask = tex2D(_MainTex, uv + 2 * float2(du, dv));
+              float mask = normal_mask.w;
+              float3 normal = normal_mask.xyz * mask;
+              return float4(normal, mask);
             }
 
             float4 frag(v2f i) : SV_Target
             {
-                float4 uc = tex2D(_SameSizeTex, i.uv) * 0.25f;
-                float4 dc = (1 / 8.0) * (
+                float4 uc = SampleSameSizeTex(i.uv);
+                float4 dc = 0.125f * (
                   SampleMainTex(i.uv, 0 / 8.0f) +
                   SampleMainTex(i.uv, 1 / 8.0f) +
                   SampleMainTex(i.uv, 2 / 8.0f) +
@@ -64,8 +73,12 @@ Shader "Unlit/Upsample"
                   SampleMainTex(i.uv, 5 / 8.0f) +
                   SampleMainTex(i.uv, 6 / 8.0f) +
                   SampleMainTex(i.uv, 7 / 8.0f));
-                float4 color = uc * 0.25f + dc * 0.75f;
-                return color;
+
+                float4 normal_mask = uc * 0.25f + dc * 0.75f;
+
+                float mask = saturate(normal_mask.w) > 0.5f ? 1.0f : 0.0f;
+                float3 normal = normal_mask.xyz * mask;
+                return float4(normal, round(mask));
             }
             ENDCG
         }

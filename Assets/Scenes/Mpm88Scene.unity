@@ -457,7 +457,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1122658700}
   - component: {fileID: 1122658699}
-  m_Layer: 0
+  - component: {fileID: 1122658701}
+  - component: {fileID: 1122658702}
+  m_Layer: 3
   m_Name: Mpm88
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -486,12 +488,61 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1122658698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.339492, y: 0.47808123, z: 5.1777606}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &1122658701
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122658698}
+  m_Mesh: {fileID: 0}
+--- !u!23 &1122658702
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122658698}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 0
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 8abd77952a7bbd04085216da129a2a64, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1167394971
 GameObject:
   m_ObjectHideFlags: 0
@@ -601,7 +652,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!20 &1632866029
 Camera:
   m_ObjectHideFlags: 0
@@ -628,8 +679,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 1
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -653,7 +704,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1632866027}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 1, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -695,8 +746,8 @@ Camera:
   m_GameObject: {fileID: 1655341197}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.9150943, g: 0.81300336, b: 0.575531, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -750,7 +801,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1655341197}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a89ea22db56c724aad0441038c8a855, type: 3}
   m_Name: 
@@ -758,7 +809,11 @@ MonoBehaviour:
   BlitMaterial: {fileID: 2100000, guid: 930cba6794ccccc46818320270534e8c, type: 2}
   DownsampleMaterial: {fileID: 2100000, guid: 3e5766bdc910cf04f8529dc03e151af7, type: 2}
   UpsampleMaterial: {fileID: 2100000, guid: cc352de1312de7047acd406553e96f6f, type: 2}
+  LiquidMask2NormalMaterial: {fileID: 2100000, guid: 4af90d94f68fd604ca1552207bd24100, type: 2}
+  NormalUpsampleMaterial: {fileID: 2100000, guid: 137ece0d580fee7408fa0b780d9fde0a, type: 2}
   SceneNormalDepth: {fileID: 8400000, guid: d2d88a674db612247acbf63df69f3180, type: 2}
+  LiquidColor: {r: 0.23217033, g: 0.7019105, b: 0.8584906, a: 0}
+  LiquidSpecularColor: {r: 0.36661917, g: 0.58761513, b: 0.6981132, a: 0.34509805}
 --- !u!1 &1938463127
 GameObject:
   m_ObjectHideFlags: 0
