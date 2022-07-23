@@ -79,5 +79,5 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainTexInvSize: {r: 0.0016666667, g: 0.0017730496, b: 0, a: 0}
+    - _MainTexInvSize: {r: 0.00089285715, g: 0.0017605633, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Mpm88Scene.unity
+    guid: 70e0a0c90415c1841af5d1be8e997898
+  - enabled: 1
     path: Assets/Scenes/ImplicitFemScene.unity
     guid: d2df2acd51ec2ca45a24315bba4cf296
   - enabled: 1
