@@ -2,6 +2,8 @@
 
 This repository demonstrates Taichi-Unity interopability with sample scenes.
 
+🔥 The Unity examples are still in active development. Things can break sometimes but will be fixed real soon.
+
 ![Implicit FEM Demo Recording](implicit-fem-recording.gif)
 
 ## Prerequisites
