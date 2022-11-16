@@ -9,9 +9,7 @@ For implicit_fem demo, you have to make sure that the `--aot` parameter in the c
 
 You can find `taichi_c_api.dll` in [a nightly Python wheel](https://pypi.org/project/taichi-nightly/). Or you can build it from source following the steps in [Developer Installation](https://docs.taichi-lang.org/docs/dev_install) with CMake definition `TI_WITH_C_API=ON`. The Taichi Runtime C-API library can be found in `taichi/_skbuild/<platform>/cmake-install/c_api`.
 
-To ensure you are building with `TI_WITH_C_API`, please lookup the CMake options in `taichi/_skbuild/<platform>/cmake-build/CMakeCache.txt`.
-
-After recompiling, you can find the dll file in the c_api folder mentioned earlier.And you can get `taichi_unity.dll` from [taichi-dev/taichi-unity2](https://github.com/taichi-dev/taichi-unity2) in a similar way.
+To ensure you are building with `TI_WITH_C_API`, please lookup the CMake options in `taichi/_skbuild/<platform>/cmake-build/CMakeCache.txt`.After recompiling, you can find the dll file in the c_api folder mentioned earlier.And you can get `taichi_unity.dll` from [taichi-dev/taichi-unity2](https://github.com/taichi-dev/taichi-unity2) in a similar way.
 
 ## InvalidOperationException: Ignored launch because kernel handle is null
 
