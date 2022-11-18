@@ -4,7 +4,9 @@ This repository demonstrates Taichi-Unity interopability with sample scenes.
 
 🔥 The Unity examples are still in active development. Things can break sometimes but will be fixed real soon.
 
-![Implicit FEM Demo Recording](implicit-fem-recording.gif)
+<div align=center>
+<img src = "img/fractal_demo.gif" width = "46.7%"> <img src = "img/implicit-fem-recording.gif"width = "20%">
+</div>
 
 ## Prerequisites
 
@@ -33,3 +35,5 @@ Note that some player settings are changed for Android
 - Scripting backend is switched to IL2CPP;
 - Library arch is set to `ARM64`, support for `ARMv7` is canceled;
 - Default orientation is fixed portrait.
+## Problem and solution
+We sorted out the problems you may encounter while running the demo, and will continue to add. You can find them at [Build.md](Build.md).
