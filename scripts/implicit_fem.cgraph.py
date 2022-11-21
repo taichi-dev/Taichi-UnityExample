@@ -6,7 +6,7 @@ import taichi as ti
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dim', type=int, default=3)
-parser.add_argument('--aot', default=False, action='store_true')
+parser.add_argument('--aot', default=True, action='store_true')
 args = parser.parse_args()
 
 # TODO: asserts cuda or vulkan backend
