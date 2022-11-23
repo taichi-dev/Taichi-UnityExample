@@ -68,11 +68,7 @@ public class mpm88 : MonoBehaviour
         // int n_particles = 8192 * 5;
         int n_particles =  50;
         int n_grid = 128;
-        double dt = 2e-4;
-        int p_rho = 1;
-        double gravity = 9.8;
-        int bound = 3;
-        int E = 400;
+
 
         //Taichi Allocate memory,hostwrite are not considered
         pos = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(3).HostRead().Build();
