@@ -35,7 +35,7 @@ public class mpm88 : MonoBehaviour
     private Texture2D _Texture;
     private Texture2D _Clear;
     private Color[] _mpm88Color;
-    private float r = 1.0f;
+    private float r = 2.0f;
     private Color ParticleColor=new Color(1.0f,0.0f,0.0f);
 
     // Start is called before the first frame update
@@ -64,9 +64,7 @@ public class mpm88 : MonoBehaviour
         _MeshRenderer = GetComponent<MeshRenderer>();
         _MeshRenderer.material.mainTexture = _Texture;
 
-
-        // int n_particles = 8192 * 5;
-        int n_particles =  50;
+        int n_particles = 20000;//Do not exceed 20000 to ensure smooth running of the demo
         int n_grid = 128;
 
 
@@ -94,26 +92,7 @@ public class mpm88 : MonoBehaviour
             //kernel initialize
         }
     }
- 
-    void test(ref Color[] mpm88_color,ref Vector3 temp)
-    {
-        for (int i = 0; i < mpm88_color.Length; ++i)
-        {
-                Vector2 tt = new Vector2(temp.x * WIDTH, temp.y * HEIGHT);
-                Vector2 pixel = new Vector2(i%WIDTH, i/HEIGHT);
-                Vector2 distance_vector = tt - pixel;
-                if (distance_vector.magnitude <= r)
-                {
-                //Debug.Log("hello" + distance_vector.magnitude);
-                    mpm88_color[i] = ParticleColor;
 
-                }
-                else
-                {
-                    mpm88_color[i] = new Color(1.0f,1.0f,1.0f);
-                }
-        }
-    }
     void in_circle_or_not(ref Color[] mpm88_color,ref float[] pos)
     {
         for(int i = 0;i<mpm88_color.Length;++i)
@@ -121,7 +100,8 @@ public class mpm88 : MonoBehaviour
            for(int j = 0;j<pos.Length;j+=3)
            {
                 Vector2 tt = new Vector2(pos[j ] * WIDTH, pos[j+1]*HEIGHT);
-                Vector2 pixel = new Vector2(i % WIDTH, i / HEIGHT);
+                
+                Vector2 pixel = new Vector2(i % WIDTH, i / WIDTH);
                 Vector2 distance_vecor = tt- pixel; 
                 if(distance_vecor.magnitude<=r)
                 {
@@ -133,18 +113,24 @@ public class mpm88 : MonoBehaviour
             else mpm88_color[i] = Color.white;       
         }
     }
+    void in_circle_or_notv2(ref Color[] mpm88_color, ref float[] pos)
+    {
+        for (int j = 0; j < pos.Length; j += 3)
+        {
+            Vector2 tt = new Vector2((int)(pos[j] * WIDTH),(int)( pos[j + 1] * HEIGHT));
+            mpm88_color[(int)(tt.y*WIDTH+tt.x)] = ParticleColor;
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
-        //_Texture = _Clear;
-        
-        //Debug.Log(pos.Count);
         float[] temp2 = new float[pos.Count];
         pos.CopyToArray(temp2);
-        
-        //test(ref _mpm88Color, ref temp);
-        in_circle_or_not(ref _mpm88Color, ref temp2);
+
+        _mpm88Color = new Color[WIDTH * HEIGHT];
+        in_circle_or_notv2(ref _mpm88Color, ref temp2);
+
         _Texture.SetPixels(_mpm88Color);
         _Texture.Apply();
 
@@ -152,11 +138,11 @@ public class mpm88 : MonoBehaviour
         {
             _Compute_Graph_g_update.LaunchAsync(new Dictionary<string, object>
             {
-                {"v", v},//have
+                {"v", v},
                 {"grid_m",grid_m},
-                {"x",x},//have
+                {"x",x},
                 {"C",C},
-                {"J",J},//have
+                {"J",J},
                 {"grid_v",grid_v},
                 {"pos",pos}
             });
