@@ -13,9 +13,6 @@ using JetBrains.Annotations;
 public class mpm88 : MonoBehaviour {
     private Mesh _Mesh;
     private MeshFilter _MeshFilter;
-    private Vector3[] vertices;
-
-
 
     public AotModuleAsset mpm88Module;
     private Kernel _Kernel_subsetep_reset_grid;
@@ -37,7 +34,7 @@ public class mpm88 : MonoBehaviour {
 
     private NdArray<float> _Canvas;
     private MeshRenderer _MeshRenderer;
-    int n_particles = 20000;//Do not exceed 20000 to ensure smooth running of the demo
+    int n_particles = 60000;
 
     // Start is called before the first frame update
     void Start() {
@@ -54,12 +51,10 @@ public class mpm88 : MonoBehaviour {
             _Compute_Graph_g_init = cgraphs["init"];
             _Compute_Graph_g_update = cgraphs["update"];
         }
-        _MeshRenderer = GetComponent<MeshRenderer>();
-
         int n_grid = 128;
 
         //Taichi Allocate memory,hostwrite are not considered
-        pos = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(3).HostRead().Build();
+        pos = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(3).Build();
         x = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(2).Build();
         v = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(2).Build();
         C = new NdArrayBuilder<float>().Shape(n_particles).ElemShape(2, 2).Build();
@@ -78,17 +73,25 @@ public class mpm88 : MonoBehaviour {
             //kernel initialize
         }
 
+        _MeshRenderer = GetComponent<MeshRenderer>();
         _MeshFilter = GetComponent<MeshFilter>();
         _Mesh = new Mesh();
+        var layout = new VertexAttributeDescriptor[] {
+            new VertexAttributeDescriptor(VertexAttribute.Position,VertexAttributeFormat.Float32,stream:0),
+        };
+        var vertices = new float[3*n_particles];
         int[] indices = new int[n_particles];
         for (int i = 0; i < n_particles; ++i) {
             indices[i] = i;
         }
-        vertices = new Vector3[n_particles];
-        _Mesh.vertices = vertices;
-        _Mesh.name = "mpm88";
-        _Mesh.SetIndices(indices, MeshTopology.Points, 0);
+        Vector3[] vertex = new Vector3[n_particles];
 
+        var index = indices.ToArray();
+        _Mesh.vertices = vertex;
+        _Mesh.SetIndices(indices, MeshTopology.Points, 0);
+        _Mesh.name = "mpm88";
+        _Mesh.MarkModified();
+        _Mesh.UploadMeshData(false);
         _MeshFilter.mesh = _Mesh;
     }
 
@@ -96,7 +99,6 @@ public class mpm88 : MonoBehaviour {
     void Update() {
         
         if (_Compute_Graph_g_update != null) {
-            
             _Compute_Graph_g_update.LaunchAsync(new Dictionary<string, object>
             {
                 {"v", v},
@@ -107,17 +109,8 @@ public class mpm88 : MonoBehaviour {
                 {"grid_v",grid_v},
                 {"pos",pos}
             });
-            
         }
-        float[] temp3 = new float[pos.Count];
-        pos.CopyToArray(temp3);
-        //pos.CopyToNativeBufferAsync(_Mesh.GetNativeVertexBufferPtr(0));
-        for (int i = 0; i < temp3.Length; i+=3) {
-            int sit = i / 3;
-            vertices[sit] = new Vector3(temp3[i],temp3[i + 1], temp3[i + 2]);
-        }
-        _Mesh.vertices = vertices;
-
+        pos.CopyToNativeBufferAsync(_Mesh.GetNativeVertexBufferPtr(0));
         Runtime.Submit();
     }
 }
