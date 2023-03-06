@@ -13,7 +13,7 @@ def complex_sqr(z):
 
 
 @ti.kernel
-def fractal(t: ti.f32, canvas: ti.types.ndarray(field_dim=2)):
+def fractal(t: ti.f32, canvas: ti.types.ndarray(ndim=2)):
     for i, j in canvas:  # Parallelized over all pixels
         c = ti.Vector([-0.8, ti.cos(t) * 0.2])
         z = ti.Vector([i / n - 1, j / n - 0.5]) * 2
@@ -30,7 +30,7 @@ sym_t = ti.graph.Arg(ti.graph.ArgKind.SCALAR,
 sym_canvas = ti.graph.Arg(ti.graph.ArgKind.NDARRAY,
                           "canvas",
                           ti.f32,
-                          field_dim=2,
+                          ndim=2,
                           element_shape=())
 
 gb = ti.graph.GraphBuilder()
