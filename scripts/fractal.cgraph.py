@@ -25,13 +25,11 @@ def fractal(t: ti.f32, canvas: ti.types.ndarray(ndim=2)):
 
 sym_t = ti.graph.Arg(ti.graph.ArgKind.SCALAR,
                      "t",
-                     ti.f32,
-                     element_shape=())
+                     ti.f32)
 sym_canvas = ti.graph.Arg(ti.graph.ArgKind.NDARRAY,
                           "canvas",
                           ti.f32,
-                          ndim=2,
-                          element_shape=())
+                          ndim=2)
 
 gb = ti.graph.GraphBuilder()
 gb.dispatch(fractal, sym_t, sym_canvas)
